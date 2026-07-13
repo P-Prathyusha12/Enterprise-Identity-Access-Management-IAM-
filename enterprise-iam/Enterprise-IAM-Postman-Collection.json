@@ -1,0 +1,271 @@
+{
+    "info": {
+        "name": "Enterprise IAM Platform",
+        "description": "API Collection for Enterprise Identity & Access Management Platform",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "variable": [
+        { "key": "baseUrl", "value": "http://localhost:8080/api/v1", "type": "string" },
+        { "key": "token", "value": "", "type": "string" }
+    ],
+    "item": [
+        {
+            "name": "Authentication",
+            "item": [
+                {
+                    "name": "Register User",
+                    "request": {
+                        "method": "POST",
+                        "header": [{ "key": "Content-Type", "value": "application/json" }],
+                        "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] },
+                        "body": { 
+                            "mode": "raw", 
+                            "raw": "{\n    \"username\": \"john_doe\",\n    \"email\": \"john@example.com\",\n    \"password\": \"Password123!\",\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"phone\": \"+1234567890\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Login User",
+                    "event": [
+                        { "listen": "test", "script": { "exec": [
+                            "var jsonData = pm.response.json();",
+                            "if(jsonData.data && jsonData.data.accessToken) {",
+                            "    pm.collectionVariables.set('token', jsonData.data.accessToken);",
+                            "}"
+                        ], "type": "text/javascript" } }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [{ "key": "Content-Type", "value": "application/json" }],
+                        "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] },
+                        "body": { 
+                            "mode": "raw", 
+                            "raw": "{\n    \"emailOrUsername\": \"john@example.com\",\n    \"password\": \"Password123!\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Verify Email",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": { "raw": "{{baseUrl}}/auth/verify-email?token=YOUR_TOKEN_HERE", "host": ["{{baseUrl}}"], "path": ["auth", "verify-email"], "query": [{ "key": "token", "value": "YOUR_TOKEN_HERE" }] }
+                    }
+                },
+                {
+                    "name": "Verify MFA Login",
+                    "request": {
+                        "method": "POST",
+                        "header": [{ "key": "Content-Type", "value": "application/json" }],
+                        "url": { "raw": "{{baseUrl}}/auth/login/mfa", "host": ["{{baseUrl}}"], "path": ["auth", "login", "mfa"] },
+                        "body": { 
+                            "mode": "raw", 
+                            "raw": "{\n    \"mfaToken\": \"MFA_PENDING_TOKEN\",\n    \"otpCode\": \"123456\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Refresh Token",
+                    "request": {
+                        "method": "POST",
+                        "header": [{ "key": "Content-Type", "value": "application/json" }],
+                        "url": { "raw": "{{baseUrl}}/auth/refresh-token", "host": ["{{baseUrl}}"], "path": ["auth", "refresh-token"] },
+                        "body": { 
+                            "mode": "raw", 
+                            "raw": "{\n    \"refreshToken\": \"YOUR_REFRESH_TOKEN\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Forgot Password",
+                    "request": {
+                        "method": "POST",
+                        "header": [{ "key": "Content-Type", "value": "application/json" }],
+                        "url": { "raw": "{{baseUrl}}/auth/forgot-password", "host": ["{{baseUrl}}"], "path": ["auth", "forgot-password"] },
+                        "body": { 
+                            "mode": "raw", 
+                            "raw": "{\n    \"email\": \"john@example.com\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Reset Password",
+                    "request": {
+                        "method": "POST",
+                        "header": [{ "key": "Content-Type", "value": "application/json" }],
+                        "url": { "raw": "{{baseUrl}}/auth/reset-password", "host": ["{{baseUrl}}"], "path": ["auth", "reset-password"] },
+                        "body": { 
+                            "mode": "raw", 
+                            "raw": "{\n    \"token\": \"YOUR_RESET_TOKEN_HERE\",\n    \"newPassword\": \"NewPassword123!\",\n    \"confirmPassword\": \"NewPassword123!\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Logout",
+                    "request": {
+                        "method": "POST",
+                        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+                        "url": { "raw": "{{baseUrl}}/auth/logout", "host": ["{{baseUrl}}"], "path": ["auth", "logout"] }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "User Profile",
+            "item": [
+                {
+                    "name": "Get Current User",
+                    "request": {
+                        "method": "GET",
+                        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+                        "url": { "raw": "{{baseUrl}}/users/me", "host": ["{{baseUrl}}"], "path": ["users", "me"] }
+                    }
+                },
+                {
+                    "name": "Update Profile",
+                    "request": {
+                        "method": "PUT",
+                        "header": [{ "key": "Authorization", "value": "Bearer {{token}}"}, { "key": "Content-Type", "value": "application/json" }],
+                        "url": { "raw": "{{baseUrl}}/users/me", "host": ["{{baseUrl}}"], "path": ["users", "me"] },
+                        "body": { 
+                            "mode": "raw", 
+                            "raw": "{\n    \"firstName\": \"Johnny\",\n    \"lastName\": \"Doe\",\n    \"phone\": \"+0987654321\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Change Password",
+                    "request": {
+                        "method": "PUT",
+                        "header": [{ "key": "Authorization", "value": "Bearer {{token}}"}, { "key": "Content-Type", "value": "application/json" }],
+                        "url": { "raw": "{{baseUrl}}/users/me/password", "host": ["{{baseUrl}}"], "path": ["users", "me", "password"] },
+                        "body": { 
+                            "mode": "raw", 
+                            "raw": "{\n    \"currentPassword\": \"Password123!\",\n    \"newPassword\": \"NewPass@456!\",\n    \"confirmPassword\": \"NewPass@456!\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Setup MFA",
+                    "request": {
+                        "method": "POST",
+                        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+                        "url": { "raw": "{{baseUrl}}/users/me/mfa/setup", "host": ["{{baseUrl}}"], "path": ["users", "me", "mfa", "setup"] }
+                    }
+                },
+                {
+                    "name": "Verify and Enable MFA",
+                    "request": {
+                        "method": "POST",
+                        "header": [{ "key": "Authorization", "value": "Bearer {{token}}"}, { "key": "Content-Type", "value": "application/json" }],
+                        "url": { "raw": "{{baseUrl}}/users/me/mfa/verify", "host": ["{{baseUrl}}"], "path": ["users", "me", "mfa", "verify"] },
+                        "body": { 
+                            "mode": "raw", 
+                            "raw": "{\n    \"code\": \"123456\"\n}"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Admin Users",
+            "item": [
+                {
+                    "name": "Get All Users",
+                    "request": {
+                        "method": "GET",
+                        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+                        "url": { "raw": "{{baseUrl}}/admin/users", "host": ["{{baseUrl}}"], "path": ["admin", "users"] }
+                    }
+                },
+                {
+                    "name": "Get User By ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+                        "url": { "raw": "{{baseUrl}}/admin/users/1", "host": ["{{baseUrl}}"], "path": ["admin", "users", "1"] }
+                    }
+                },
+                {
+                    "name": "Assign Role to User",
+                    "request": {
+                        "method": "POST",
+                        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+                        "url": { "raw": "{{baseUrl}}/admin/users/2/roles/2", "host": ["{{baseUrl}}"], "path": ["admin", "users", "2", "roles", "2"] }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Roles",
+            "item": [
+                {
+                    "name": "Get All Roles",
+                    "request": {
+                        "method": "GET",
+                        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+                        "url": { "raw": "{{baseUrl}}/admin/roles", "host": ["{{baseUrl}}"], "path": ["admin", "roles"] }
+                    }
+                },
+                {
+                    "name": "Create Role",
+                    "request": {
+                        "method": "POST",
+                        "header": [{ "key": "Authorization", "value": "Bearer {{token}}"}, { "key": "Content-Type", "value": "application/json" }],
+                        "url": { "raw": "{{baseUrl}}/admin/roles", "host": ["{{baseUrl}}"], "path": ["admin", "roles"] },
+                        "body": { 
+                            "mode": "raw", 
+                            "raw": "{\n    \"name\": \"EDITOR\",\n    \"description\": \"Editor Role\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Assign Permissions to Role",
+                    "request": {
+                        "method": "POST",
+                        "header": [{ "key": "Authorization", "value": "Bearer {{token}}"}, { "key": "Content-Type", "value": "application/json" }],
+                        "url": { "raw": "{{baseUrl}}/admin/roles/2/permissions", "host": ["{{baseUrl}}"], "path": ["admin", "roles", "2", "permissions"] },
+                        "body": { 
+                            "mode": "raw", 
+                            "raw": "{\n    \"permissionIds\": [1, 4]\n}"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Permissions",
+            "item": [
+                {
+                    "name": "Get All Permissions",
+                    "request": {
+                        "method": "GET",
+                        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+                        "url": { "raw": "{{baseUrl}}/admin/permissions", "host": ["{{baseUrl}}"], "path": ["admin", "permissions"] }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Audit",
+            "item": [
+                {
+                    "name": "Get Audit Logs",
+                    "request": {
+                        "method": "GET",
+                        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+                        "url": { "raw": "{{baseUrl}}/admin/audit", "host": ["{{baseUrl}}"], "path": ["admin", "audit"] }
+                    }
+                },
+                {
+                    "name": "Get User Audit Logs",
+                    "request": {
+                        "method": "GET",
+                        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+                        "url": { "raw": "{{baseUrl}}/admin/audit?userId=2", "host": ["{{baseUrl}}"], "path": ["admin", "audit"], "query": [{ "key": "userId", "value": "2" }] }
+                    }
+                }
+            ]
+        }
+    ]
+}
